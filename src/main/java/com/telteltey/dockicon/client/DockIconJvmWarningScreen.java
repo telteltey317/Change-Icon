@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -22,11 +23,7 @@ public final class DockIconJvmWarningScreen extends Screen {
     );
 
     private final Screen previous;
-    private Button checkboxButton;
-    private int checkboxLabelX;
-    private int checkboxLabelY;
-    private int checkboxLabelWidth;
-    private int checkboxLabelHeight;
+    private Checkbox checkbox;
     private boolean dontShowAgain;
     private boolean dismissed;
 
@@ -41,19 +38,15 @@ public final class DockIconJvmWarningScreen extends Screen {
         int buttonHeight = 20;
         int buttonX = (this.width - buttonWidth) / 2;
         int buttonY = this.height - 40;
-        int checkboxSize = 20;
         int toggleY = buttonY - 30;
-        int labelWidth = this.font.width(CHECKBOX_LABEL);
-        int totalWidth = checkboxSize + 6 + labelWidth;
-        int checkboxX = (this.width - totalWidth) / 2;
-        this.checkboxLabelX = checkboxX + checkboxSize + 6;
-        this.checkboxLabelY = toggleY + (checkboxSize - this.font.lineHeight) / 2;
-        this.checkboxLabelWidth = labelWidth;
-        this.checkboxLabelHeight = this.font.lineHeight;
-        this.checkboxButton = Button.builder(Component.literal("☐"), button -> toggleDontShowAgain())
-                .bounds(checkboxX, toggleY, checkboxSize, checkboxSize)
+        int checkboxWidth = Checkbox.getBoxSize(this.font) + 4 + this.font.width(CHECKBOX_LABEL);
+        int checkboxX = (this.width - checkboxWidth) / 2;
+        this.checkbox = Checkbox.builder(CHECKBOX_LABEL, this.font)
+                .pos(checkboxX, toggleY)
+                .selected(dontShowAgain)
+                .onValueChange((checkbox, value) -> dontShowAgain = value)
                 .build();
-        this.addRenderableWidget(this.checkboxButton);
+        this.addRenderableWidget(this.checkbox);
         this.addRenderableWidget(Button.builder(OK_LABEL, button -> dismiss())
                 .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
                 .build());
@@ -75,7 +68,6 @@ public final class DockIconJvmWarningScreen extends Screen {
             guiGraphics.drawCenteredString(this.font, line, this.width / 2, y, 0xFFFFFF);
             y += lineHeight;
         }
-        guiGraphics.drawString(this.font, CHECKBOX_LABEL, this.checkboxLabelX, this.checkboxLabelY, 0xFFFFFF, true);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
@@ -102,27 +94,4 @@ public final class DockIconJvmWarningScreen extends Screen {
         }
     }
 
-    private void toggleDontShowAgain() {
-        dontShowAgain = !dontShowAgain;
-        if (checkboxButton != null) {
-            String prefix = dontShowAgain ? "☑" : "☐";
-            checkboxButton.setMessage(Component.literal(prefix));
-        }
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (isInsideCheckboxLabel(mouseX, mouseY)) {
-            toggleDontShowAgain();
-            return true;
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    private boolean isInsideCheckboxLabel(double mouseX, double mouseY) {
-        return mouseX >= this.checkboxLabelX
-                && mouseX <= this.checkboxLabelX + this.checkboxLabelWidth
-                && mouseY >= this.checkboxLabelY
-                && mouseY <= this.checkboxLabelY + this.checkboxLabelHeight;
-    }
 }

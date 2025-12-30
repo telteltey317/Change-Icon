@@ -23,5 +23,7 @@ run
 runs
 run-data
 .DS_Store
+.vscode
+*.log
 
 repo
