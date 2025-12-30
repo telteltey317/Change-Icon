@@ -1,0 +1,14 @@
+{
+  "dockicon.title": "Dock Icon",
+  "dockicon.command.reload.success": "Dock icon reload requested.",
+  "dockicon.warning.title": "Dock Icon Mod",
+  "dockicon.warning.checkbox": "Don't show this message again",
+  "dockicon.warning.ok": "OK",
+  "dockicon.warning.line1": "If you use Prism Launcher or other launchers,",
+  "dockicon.warning.line2": "you must add JVM arguments to change the Dock icon.",
+  "dockicon.warning.line3": "Add these arguments:",
+  "dockicon.warning.line4": "-Djava.awt.headless=false",
+  "dockicon.warning.line5": "--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED",
+  "dockicon.warning.line6": "Restart the game after setting them.",
+  "dockicon.warning.line7": "You can hide this message using the checkbox below."
+}

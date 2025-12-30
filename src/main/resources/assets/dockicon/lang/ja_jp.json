@@ -1,0 +1,14 @@
+{
+  "dockicon.title": "Dock Icon",
+  "dockicon.command.reload.success": "Dock アイコンの再読み込みを要求しました。",
+  "dockicon.warning.title": "Dock Icon Mod",
+  "dockicon.warning.checkbox": "このメッセージを二度と表示しない",
+  "dockicon.warning.ok": "OK",
+  "dockicon.warning.line1": "Prism Launcher などのランチャーを使用している場合、",
+  "dockicon.warning.line2": "Dock アイコン変更のために JVM 引数の追加が必要です。",
+  "dockicon.warning.line3": "追加する引数:",
+  "dockicon.warning.line4": "-Djava.awt.headless=false",
+  "dockicon.warning.line5": "--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED",
+  "dockicon.warning.line6": "設定後に再起動してください。",
+  "dockicon.warning.line7": "下のチェックで表示しないようにできます。"
+}
