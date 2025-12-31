@@ -2,6 +2,8 @@ package com.telteltey.dockicon.client;
 
 import com.telteltey.dockicon.DockIconMod;
 
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
@@ -19,7 +21,8 @@ public final class DockIconClientCommands {
         event.getDispatcher().register(Commands.literal("dockicon")
                 .then(Commands.literal("reload")
                         .executes(context -> {
-                            DockIconManager.trySetDockIcon();
+                            Minecraft minecraft = Minecraft.getInstance();
+                            DockIconManager.requestDockIconUpdate(Util.backgroundExecutor(), minecraft);
                             context.getSource().sendSuccess(
                                     () -> Component.translatable("dockicon.command.reload.success"),
                                     false

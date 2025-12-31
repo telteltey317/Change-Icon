@@ -12,6 +12,8 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import javax.imageio.ImageIO;
 
@@ -26,6 +28,25 @@ public final class DockIconManager {
     private DockIconManager() {
     }
 
+    public static CompletableFuture<Void> requestDockIconUpdate(Executor backgroundExecutor, Executor applyExecutor) {
+        if (!isMacOs()) {
+            return CompletableFuture.completedFuture(null);
+        }
+        ensureAwtHeadfulProperty();
+
+        return CompletableFuture
+                .supplyAsync(DockIconManager::loadDockIconImage, backgroundExecutor)
+                .thenAcceptAsync(image -> {
+                    if (image != null) {
+                        applyDockIcon(image);
+                    }
+                }, applyExecutor)
+                .exceptionally(throwable -> {
+                    DockIconMod.LOGGER.error("Unexpected failure while updating the Dock icon.", throwable);
+                    return null;
+                });
+    }
+
     public static void trySetDockIcon() {
         try {
             if (!isMacOs()) {
@@ -33,35 +54,48 @@ public final class DockIconManager {
             }
             ensureAwtHeadfulProperty();
 
+            BufferedImage image = loadDockIconImage();
+            if (image != null) {
+                applyDockIcon(image);
+            }
+        } catch (Throwable t) {
+            DockIconMod.LOGGER.error("Unexpected failure while updating the Dock icon.", t);
+        }
+    }
+
+    private static BufferedImage loadDockIconImage() {
+        try {
             Path iconPath = resolveIconPath();
             if (iconPath == null) {
-                return;
+                return null;
             }
             if (!Files.isRegularFile(iconPath)) {
                 DockIconMod.LOGGER.info("Dock icon file not found at {}; skipping.", iconPath);
-                return;
+                return null;
             }
             if (!isPngFile(iconPath)) {
                 DockIconMod.LOGGER.warn("Dock icon file is not a PNG: {}; skipping.", iconPath);
-                return;
+                return null;
             }
 
-            BufferedImage image = readImage(iconPath);
-            if (image == null) {
-                return;
-            }
+            return readImage(iconPath);
+        } catch (Throwable t) {
+            DockIconMod.LOGGER.error("Unexpected failure while reading the Dock icon file.", t);
+            return null;
+        }
+    }
 
+    private static void applyDockIcon(BufferedImage image) {
+        try {
             boolean updated = trySetWithTaskbar(image);
             if (!updated) {
                 updated = trySetWithAppleEawt(image);
             }
-            if (updated) {
-                return;
+            if (!updated) {
+                DockIconMod.LOGGER.warn("No supported Dock icon API available; leaving default icon.");
             }
-
-            DockIconMod.LOGGER.warn("No supported Dock icon API available; leaving default icon.");
         } catch (Throwable t) {
-            DockIconMod.LOGGER.error("Unexpected failure while updating the Dock icon.", t);
+            DockIconMod.LOGGER.error("Unexpected failure while applying the Dock icon.", t);
         }
     }
 

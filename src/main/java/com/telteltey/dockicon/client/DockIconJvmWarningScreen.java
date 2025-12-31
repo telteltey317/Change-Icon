@@ -1,5 +1,6 @@
 package com.telteltey.dockicon.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -7,6 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 public final class DockIconJvmWarningScreen extends Screen {
     private static final Component TITLE = Component.translatable("dockicon.warning.title");
@@ -26,6 +28,7 @@ public final class DockIconJvmWarningScreen extends Screen {
     private Checkbox checkbox;
     private boolean dontShowAgain;
     private boolean dismissed;
+    private List<FormattedCharSequence> wrappedLines = List.of();
 
     public DockIconJvmWarningScreen(Screen previous) {
         super(TITLE);
@@ -50,6 +53,7 @@ public final class DockIconJvmWarningScreen extends Screen {
         this.addRenderableWidget(Button.builder(OK_LABEL, button -> dismiss())
                 .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
                 .build());
+        rebuildWrappedLines();
     }
 
     @Override
@@ -64,7 +68,7 @@ public final class DockIconJvmWarningScreen extends Screen {
         int lineHeight = this.font.lineHeight + 2;
         int startY = 50;
         int y = startY;
-        for (Component line : LINES) {
+        for (FormattedCharSequence line : wrappedLines) {
             guiGraphics.drawCenteredString(this.font, line, this.width / 2, y, 0xFFFFFF);
             y += lineHeight;
         }
@@ -94,4 +98,15 @@ public final class DockIconJvmWarningScreen extends Screen {
         }
     }
 
+    private void rebuildWrappedLines() {
+        int maxWidth = Math.max(100, this.width - 40);
+        List<FormattedCharSequence> lines = new ArrayList<>();
+        for (Component line : LINES) {
+            lines.addAll(this.font.split(line, maxWidth));
+        }
+        if (lines.isEmpty()) {
+            lines.add(FormattedCharSequence.EMPTY);
+        }
+        this.wrappedLines = lines;
+    }
 }

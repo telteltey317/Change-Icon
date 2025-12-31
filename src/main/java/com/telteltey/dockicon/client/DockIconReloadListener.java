@@ -17,6 +17,6 @@ public final class DockIconReloadListener implements PreparableReloadListener {
                                           Executor backgroundExecutor,
                                           Executor gameExecutor) {
         return barrier.wait(CompletableFuture.completedFuture(null))
-                .thenRunAsync(DockIconManager::trySetDockIcon, gameExecutor);
+                .thenCompose(ignored -> DockIconManager.requestDockIconUpdate(backgroundExecutor, gameExecutor));
     }
 }

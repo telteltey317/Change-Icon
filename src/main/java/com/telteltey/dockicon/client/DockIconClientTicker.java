@@ -2,6 +2,7 @@ package com.telteltey.dockicon.client;
 
 import com.telteltey.dockicon.DockIconMod;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,14 +28,14 @@ public final class DockIconClientTicker {
                 return;
             }
             pending = false;
-            DockIconManager.trySetDockIcon();
+            DockIconManager.requestDockIconUpdate(Util.backgroundExecutor(), minecraft);
         }
         if (warningPending) {
             if (!DockIconWarningState.shouldShowWarning()) {
                 warningPending = false;
                 return;
             }
-            if (minecraft.screen != null && !(minecraft.screen instanceof DockIconJvmWarningScreen)) {
+            if (!(minecraft.screen instanceof DockIconJvmWarningScreen)) {
                 warningPending = false;
                 minecraft.setScreen(new DockIconJvmWarningScreen(minecraft.screen));
             }
